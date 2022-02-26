@@ -10,8 +10,8 @@ class BikeTrip(models.Model):
     userTypeChoice = (
             ("Subscriber","Annual Member"),("Customer","24-hour pass or 3-day pass user")
             )
-    # YEAR_CHOICES = [(r,r) for r in range(1984, datetime.date.today().year+1)]
 
+    id = models.AutoField(primary_key=True)
     trip_duration = models.IntegerField(null=True, blank=True)
     start_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     stop_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
