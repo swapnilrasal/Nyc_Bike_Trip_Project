@@ -18,7 +18,7 @@ class BikeTripListAPIView(ListAPIView):
     """[BikeTrip List Api view.]
     """
     model = BikeTrip
-    queryset = BikeTrip.objects.all()
+    queryset = BikeTrip.objects.all().order_by("id")
     serializer_class = BikeTripSerializer
     pagination_class = ListResultSetPagination
     filter_fields = [
