@@ -1,10 +1,8 @@
-# import csv
 import os
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from Nyc_Bike_Trip.models import BikeTrip
 import wget
-# import re
 import pandas as pd
 import zipfile
 
@@ -70,21 +68,17 @@ class Command(BaseCommand):
             resp = self.download_zip_file(filename)
             # import pdb
             # pdb.set_trace()
+            resp["df"].iloc[:, 1] = pd.to_datetime(resp["df"].iloc[:, 1])
+            resp["df"].iloc[:, 2] = pd.to_datetime(resp["df"].iloc[:, 2])
             try:
-                import datetime
-                # for index, row in resp["df"].iterrows():
-                #     row[1] = datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
-                #     row[2] = datetime.datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')
-
+                from dateutil import parser
                 from django.utils import timezone
-                # import pdb
-                # pdb.set_trace()
 
                 objs = [
                     BikeTrip(
                         trip_duration=(row[0] if not pd.isnull(row[0]) else None),
-                        start_time=(timezone.make_aware((datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')), timezone.get_current_timezone()) if not pd.isnull(row[1]) else None),
-                        stop_time=(timezone.make_aware((datetime.datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')), timezone.get_current_timezone()) if not pd.isnull(row[2]) else None),
+                        start_time=(timezone.make_aware(row[1], timezone.get_current_timezone()) if not pd.isnull(row[1]) else None),
+                        stop_time=(timezone.make_aware(row[2], timezone.get_current_timezone()) if not pd.isnull(row[2]) else None),
                         start_station_id=(row[3] if not pd.isnull(row[3]) else None),
                         start_station_name=(row[4] if not pd.isnull(row[4]) else None),
                         start_station_latitude=(row[5] if not pd.isnull(row[5]) else None),
