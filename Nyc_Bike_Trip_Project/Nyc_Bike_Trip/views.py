@@ -18,17 +18,25 @@ class BikeTripListAPIView(ListAPIView):
     """[BikeTrip List Api view.]
     """
     model = BikeTrip
-    queryset = BikeTrip.objects.all().order_by("id")
+    queryset = BikeTrip.objects.all().order_by("bikeid")
     serializer_class = BikeTripSerializer
     pagination_class = ListResultSetPagination
     filter_fields = [
-        'trip_duration', 'start_time', 'stop_time', 'start_station_latitude',
+        'bikeid', 'rideable_type', 'started_at', 'ended_at', 
         'start_station_id','start_station_name', 'end_station_id',
-        'start_station_longitude', 'end_station_latitude', 'end_station_longitude',
-        'end_station_name','bikeid', 'gender', 'user_type', 'birth_year']
+        'end_station_name', 'start_lat', 'start_lon', 'end_lat', 
+        'end_lon', 'member_casual']
 
-    def get_serializer_context(self):
-        return {'request': self.request}
+    def get_queryset(self):
+        if not self.request:
+            return BikeTrip.objects.none()
+
+        if self.request.query_params:
+            queryset = self.filter_queryset(self.queryset)
+        else:
+            queryset = self.queryset
+
+        return queryset
 
 class GetSingleTripInstanceView(ListAPIView):
 
@@ -36,20 +44,20 @@ class GetSingleTripInstanceView(ListAPIView):
     serializer_class = BikeTripSerializer
     schema = AutoSchema(
         manual_fields=[
-            coreapi.Field("id",
+            coreapi.Field("bikeid",
                           required=True,
                           location='query',
-                          description='trip id'
+                          description='trip bikeid'
                           )
         ]
     )
 
-    def get(self, request, id):
+    def get(self, request, bikeid):
         """[Get specific trip]"""
+
         try:
-            bike_trip_obj = BikeTrip.objects.get(
-                id=id
-            )
+            bike_trip_obj = BikeTrip.objects.filter(bikeid=bikeid).first()
+
         except BikeTrip.DoesNotExist:
             bike_trip_obj = None
             pass
@@ -58,18 +66,18 @@ class GetSingleTripInstanceView(ListAPIView):
 
             serializer_data = BikeTripSerializer(bike_trip_obj).data
 
-            start_lat = abs(decimal.Decimal(serializer_data["start_station_latitude"]).as_tuple().exponent)
+            start_lat = abs(decimal.Decimal(serializer_data["start_lat"]).as_tuple().exponent)
             if start_lat > 4:
-                serializer_data["start_station_latitude"] = round(serializer_data["start_station_latitude"], 4)
+                serializer_data["start_lat"] = round(serializer_data["start_lat"], 4)
 
-            start_lng = abs(decimal.Decimal(serializer_data["start_station_longitude"]).as_tuple().exponent)
+            start_lng = abs(decimal.Decimal(serializer_data["start_lon"]).as_tuple().exponent)
             if start_lng > 4:
-                serializer_data["start_station_longitude"] = round(serializer_data["start_station_longitude"], 4)
+                serializer_data["start_lon"] = round(serializer_data["start_lon"], 4)
 
             # ------------ Fetch Observation Station Data -------------------------
             api_url = f'https://api.weather.gov/points/{{latitude}},{{longitude}}'.format(
-                latitude=serializer_data["start_station_latitude"],
-                longitude=serializer_data["start_station_longitude"]
+                latitude=serializer_data["start_lat"],
+                longitude=serializer_data["start_lon"]
             )
             resp = requests.get(api_url)
             observation_api_resp = resp.json()
@@ -93,8 +101,8 @@ class GetSingleTripInstanceView(ListAPIView):
             # ------------ Find Nearest Coordinates Station -------------------------
 
             start_coordinates = {
-                'lat': float(serializer_data["start_station_latitude"]), 
-                'lon': float(serializer_data["start_station_longitude"])
+                'lat': float(serializer_data["start_lat"]), 
+                'lon': float(serializer_data["start_lon"])
                 }
             closest_station_data = closest(list_of_stations, start_coordinates)
             # print(closest_station_data)
@@ -102,7 +110,7 @@ class GetSingleTripInstanceView(ListAPIView):
             # ------------ Fetch Weather Conditions Data -------------------------
 
             closest_station_url = closest_station_data["id"] + f'/observations?start={{started_at}}&limit=1'.format(
-                started_at=serializer_data["start_time"]
+                started_at=serializer_data["started_at"]
             )
             weather_data = requests.get(closest_station_url)
             weather_data_json = weather_data.json()

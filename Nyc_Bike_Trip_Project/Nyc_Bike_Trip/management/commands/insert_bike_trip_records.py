@@ -32,7 +32,7 @@ class Command(BaseCommand):
         file_path = os.path.join(url, filename)
         current_path = os.path.dirname(os.path.abspath(__file__)).split('/')[-1]
         print("\n")
-        req = wget.download(file_path, out=current_path)
+        # req = wget.download(file_path, out=current_path)
         # # Split file_path to get the file name
         zip_filename = file_path.split('/')[-1]
 
@@ -68,29 +68,27 @@ class Command(BaseCommand):
             resp = self.download_zip_file(filename)
             # import pdb
             # pdb.set_trace()
-            resp["df"].iloc[:, 1] = pd.to_datetime(resp["df"].iloc[:, 1])
             resp["df"].iloc[:, 2] = pd.to_datetime(resp["df"].iloc[:, 2])
+            resp["df"].iloc[:, 3] = pd.to_datetime(resp["df"].iloc[:, 3])
             try:
                 from dateutil import parser
                 from django.utils import timezone
 
                 objs = [
                     BikeTrip(
-                        trip_duration=(row[0] if not pd.isnull(row[0]) else None),
-                        start_time=(timezone.make_aware(row[1], timezone.get_current_timezone()) if not pd.isnull(row[1]) else None),
-                        stop_time=(timezone.make_aware(row[2], timezone.get_current_timezone()) if not pd.isnull(row[2]) else None),
-                        start_station_id=(row[3] if not pd.isnull(row[3]) else None),
-                        start_station_name=(row[4] if not pd.isnull(row[4]) else None),
-                        start_station_latitude=(row[5] if not pd.isnull(row[5]) else None),
-                        start_station_longitude=(row[6] if not pd.isnull(row[6]) else None),
-                        end_station_id=(row[7] if not pd.isnull(row[7]) else None),
-                        end_station_name=(row[8] if not pd.isnull(row[8]) else None),
-                        end_station_latitude=(row[9] if not pd.isnull(row[9]) else None),
-                        end_station_longitude=(row[10] if not pd.isnull(row[10]) else None),
-                        bikeid=(row[11] if not pd.isnull(row[11]) else None),
-                        user_type=(row[12] if not pd.isnull(row[12]) else None),                            
-                        birth_year=(row[13] if not pd.isnull(row[13]) else None),
-                        gender=(row[14] if not pd.isnull(row[14]) else None),
+                        bikeid=(row[0] if not pd.isnull(row[0]) else None),
+                        rideable_type=(row[1] if not pd.isnull(row[1]) else None),
+                        started_at=(timezone.make_aware(row[2], timezone.get_current_timezone()) if not pd.isnull(row[2]) else None),
+                        ended_at=(timezone.make_aware(row[3], timezone.get_current_timezone()) if not pd.isnull(row[3]) else None),
+                        start_station_id=(row[4] if not pd.isnull(row[4]) else None),
+                        start_station_name=(row[5] if not pd.isnull(row[5]) else None),
+                        end_station_id=(row[6] if not pd.isnull(row[6]) else None),
+                        end_station_name=(row[7] if not pd.isnull(row[7]) else None),
+                        start_lat=(row[8] if not pd.isnull(row[8]) else None),
+                        start_lon=(row[9] if not pd.isnull(row[9]) else None),
+                        end_lat=(row[10] if not pd.isnull(row[10]) else None),
+                        end_lon=(row[11] if not pd.isnull(row[11]) else None),
+                        member_casual=(row[12] if not pd.isnull(row[12]) else None),
                     )
                     for index, row in resp["df"].iterrows()
                 ]

@@ -4,26 +4,20 @@ from django.utils.translation import gettext_lazy as _
 
 
 class BikeTrip(models.Model):
-    genderChoice = (
-            (0,"unknown"),(1,"male"),(2,"Female")
-            )
-    userTypeChoice = (
-            ("Subscriber","Annual Member"),("Customer","24-hour pass or 3-day pass user")
+    memberTypeChoice = (
+            ("casual","casual"),("Customer","member")
             )
 
-    id = models.AutoField(primary_key=True)
-    trip_duration = models.IntegerField(null=True, blank=True)
-    start_time = models.DateTimeField(null=True, blank=True)
-    stop_time = models.DateTimeField(null=True, blank=True)
-    start_station_id = models.IntegerField(null=True, blank=True)
+    bikeid = models.CharField(max_length=50, primary_key=True)
+    rideable_type = models.CharField(max_length=50, null=True, blank=True)
+    started_at = models.DateTimeField()
+    ended_at = models.DateTimeField()
+    start_station_id = models.CharField(max_length=50, null=True, blank=True)
     start_station_name = models.CharField(max_length=100, null=True, blank=True)
-    start_station_latitude = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
-    start_station_longitude = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
-    end_station_id = models.IntegerField(null=True, blank=True)
+    end_station_id = models.CharField(max_length=50, null=True, blank=True)
     end_station_name = models.CharField(max_length=100, null=True, blank=True)
-    end_station_latitude = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
-    end_station_longitude = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
-    bikeid = models.IntegerField(null=True, blank=True)
-    gender = models.CharField(max_length = 1,choices=genderChoice, null=True, blank=True)
-    user_type = models.CharField(max_length = 50,choices=userTypeChoice, null=True, blank=True)
-    birth_year = models.PositiveSmallIntegerField(null=True, blank=True)
+    start_lat = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    start_lon = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    end_lat = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    end_lon = models.DecimalField(max_digits=10, decimal_places=3, null=True, blank=True)
+    member_casual = models.CharField(max_length = 50,choices=memberTypeChoice, null=True, blank=True)
