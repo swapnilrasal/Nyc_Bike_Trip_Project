@@ -73,11 +73,13 @@ class GetSingleTripInstanceView(ListAPIView):
             )
             resp = requests.get(api_url)
             observation_api_resp = resp.json()
+            # print(observation_api_resp)
 
             # ------------ Fetch List Of Station Data -------------------------
             observationStations = observation_api_resp["properties"]["observationStations"]
             list_stations_data = requests.get(observationStations)
             list_stations_resp = list_stations_data.json()
+            # print(list_stations_resp)
 
             list_of_stations = []
             for fdata in list_stations_resp["features"]:
@@ -95,6 +97,7 @@ class GetSingleTripInstanceView(ListAPIView):
                 'lon': float(serializer_data["start_station_longitude"])
                 }
             closest_station_data = closest(list_of_stations, start_coordinates)
+            # print(closest_station_data)
 
             # ------------ Fetch Weather Conditions Data -------------------------
 

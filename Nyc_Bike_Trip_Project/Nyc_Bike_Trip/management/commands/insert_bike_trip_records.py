@@ -71,11 +71,20 @@ class Command(BaseCommand):
             # import pdb
             # pdb.set_trace()
             try:
+                import datetime
+                # for index, row in resp["df"].iterrows():
+                #     row[1] = datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')
+                #     row[2] = datetime.datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')
+
+                from django.utils import timezone
+                # import pdb
+                # pdb.set_trace()
+
                 objs = [
                     BikeTrip(
                         trip_duration=(row[0] if not pd.isnull(row[0]) else None),
-                        start_time=(row[1] if not pd.isnull(row[1]) else None),
-                        stop_time=(row[2] if not pd.isnull(row[2]) else None),
+                        start_time=(timezone.make_aware((datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S')), timezone.get_current_timezone()) if not pd.isnull(row[1]) else None),
+                        stop_time=(timezone.make_aware((datetime.datetime.strptime(row[2], '%Y-%m-%d %H:%M:%S')), timezone.get_current_timezone()) if not pd.isnull(row[2]) else None),
                         start_station_id=(row[3] if not pd.isnull(row[3]) else None),
                         start_station_name=(row[4] if not pd.isnull(row[4]) else None),
                         start_station_latitude=(row[5] if not pd.isnull(row[5]) else None),

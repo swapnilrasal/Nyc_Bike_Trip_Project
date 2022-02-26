@@ -13,8 +13,8 @@ class BikeTrip(models.Model):
 
     id = models.AutoField(primary_key=True)
     trip_duration = models.IntegerField(null=True, blank=True)
-    start_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    stop_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    stop_time = models.DateTimeField(null=True, blank=True)
     start_station_id = models.IntegerField(null=True, blank=True)
     start_station_name = models.CharField(max_length=100, null=True, blank=True)
     start_station_latitude = models.DecimalField(max_digits=8, decimal_places=3, null=True, blank=True)
