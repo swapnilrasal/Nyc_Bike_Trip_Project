@@ -5,6 +5,10 @@ from Nyc_Bike_Trip.models import BikeTrip
 import wget
 import pandas as pd
 import zipfile
+from django.db import transaction
+# from dateutil import parser
+from django.utils import timezone
+import time
 
 
 class Command(BaseCommand):
@@ -63,6 +67,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         for filename in options['filenames']:
+            start_time = time.time()
             print("*********************************************************************************************")
             self.stdout.write(self.style.SUCCESS('Downloading:{}'.format(filename)))
             resp = self.download_zip_file(filename)
@@ -71,27 +76,27 @@ class Command(BaseCommand):
             resp["df"].iloc[:, 2] = pd.to_datetime(resp["df"].iloc[:, 2])
             resp["df"].iloc[:, 3] = pd.to_datetime(resp["df"].iloc[:, 3])
             try:
-                from dateutil import parser
-                from django.utils import timezone
+                with transaction.atomic():
 
-                objs = [
-                    BikeTrip(
-                        bikeid=(row[0] if not pd.isnull(row[0]) else None),
-                        rideable_type=(row[1] if not pd.isnull(row[1]) else None),
-                        started_at=(timezone.make_aware(row[2], timezone.get_current_timezone()) if not pd.isnull(row[2]) else None),
-                        ended_at=(timezone.make_aware(row[3], timezone.get_current_timezone()) if not pd.isnull(row[3]) else None),
-                        start_station_id=(row[4] if not pd.isnull(row[4]) else None),
-                        start_station_name=(row[5] if not pd.isnull(row[5]) else None),
-                        end_station_id=(row[6] if not pd.isnull(row[6]) else None),
-                        end_station_name=(row[7] if not pd.isnull(row[7]) else None),
-                        start_lat=(row[8] if not pd.isnull(row[8]) else None),
-                        start_lon=(row[9] if not pd.isnull(row[9]) else None),
-                        end_lat=(row[10] if not pd.isnull(row[10]) else None),
-                        end_lon=(row[11] if not pd.isnull(row[11]) else None),
-                        member_casual=(row[12] if not pd.isnull(row[12]) else None),
-                    )
-                    for index, row in resp["df"].iterrows()
-                ]
+                    objs = [
+                        BikeTrip(
+                            bikeid=(row[0] if not pd.isnull(row[0]) else None),
+                            rideable_type=(row[1] if not pd.isnull(row[1]) else None),
+                            started_at=(timezone.make_aware(row[2], timezone.get_current_timezone()) if not pd.isnull(row[2]) else None),
+                            ended_at=(timezone.make_aware(row[3], timezone.get_current_timezone()) if not pd.isnull(row[3]) else None),
+                            start_station_id=(row[4] if not pd.isnull(row[4]) else None),
+                            start_station_name=(row[5] if not pd.isnull(row[5]) else None),
+                            end_station_id=(row[6] if not pd.isnull(row[6]) else None),
+                            end_station_name=(row[7] if not pd.isnull(row[7]) else None),
+                            start_lat=(row[8] if not pd.isnull(row[8]) else None),
+                            start_lon=(row[9] if not pd.isnull(row[9]) else None),
+                            end_lat=(row[10] if not pd.isnull(row[10]) else None),
+                            end_lon=(row[11] if not pd.isnull(row[11]) else None),
+                            member_casual=(row[12] if not pd.isnull(row[12]) else None),
+                        )
+                        for index, row in resp["df"].iterrows()
+                    ]
+
                 self.insert_bike_trip_data_to_db(objs)
 
                 if os.path.exists(resp["zip_file_path"]):
@@ -101,6 +106,8 @@ class Command(BaseCommand):
 
                 print("\n")
                 self.stdout.write(self.style.SUCCESS('Data Inserted Successfully'))
+                end_time = time.time()
+                print("time takken", end_time-start_time)
                 print("\n*********************************************************************************************")
             except FileNotFoundError:
                 raise CommandError("File {} does not exist")

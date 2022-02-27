@@ -1,5 +1,5 @@
 import logging
-from rest_framework.generics import (ListAPIView)
+from rest_framework.generics import (ListAPIView,RetrieveAPIView)
 from rest_framework.response import Response
 from .models import BikeTrip
 from .serializers import BikeTripSerializer
@@ -38,7 +38,7 @@ class BikeTripListAPIView(ListAPIView):
 
         return queryset
 
-class GetSingleTripInstanceView(ListAPIView):
+class GetSingleTripInstanceView(RetrieveAPIView):
 
     model = BikeTrip
     serializer_class = BikeTripSerializer
