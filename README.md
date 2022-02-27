@@ -46,7 +46,10 @@ pip version - pip 20.1.1
 
 # example -
 *************************************************************************
-> python manage.py insert_bike_trip_records 201306-citibike-tripdata.zip
+> python manage.py insert_bike_trip_records JC-202112-citibike-tripdata.csv.zip
+
+** note please use files which was created after feb 2021 - new format is applied after this date.
+
 *************************************************************************
 
 # After Succesfully Excuting this Data is inserted into Your Database Run Server
