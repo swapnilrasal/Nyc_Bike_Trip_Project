@@ -20,12 +20,17 @@ class BikeTripListAPIView(ListAPIView):
     model = BikeTrip
     queryset = BikeTrip.objects.all().order_by("bikeid")
     serializer_class = BikeTripSerializer
+    search_fields = (
+        '^bikeid'
+    )
+    ordering_fields = (
+        'started_at', 'ended_at', 'start_lat', 'start_lon', 'end_lat', 
+        'end_lon'
+    )
     pagination_class = ListResultSetPagination
     filter_fields = [
-        'bikeid', 'rideable_type', 'started_at', 'ended_at', 
-        'start_station_id','start_station_name', 'end_station_id',
-        'end_station_name', 'start_lat', 'start_lon', 'end_lat', 
-        'end_lon', 'member_casual']
+        'rideable_type', 'start_station_id','start_station_name', 'end_station_id',
+        'end_station_name', 'member_casual']
 
     def get_queryset(self):
         if not self.request:
